@@ -75,17 +75,6 @@ El archivo `2.pl` describe un escenario legal donde se determina si una persona 
    false.
    ```
 
-## 📝 **Consejos Adicionales**
-- Asegúrate de que los archivos `.pl` estén en el mismo directorio desde donde cargas Prolog.
-- Usa `listing.` para ver los predicados cargados:
-  ```prolog
-  ?- listing.
-  ```
-- Emplea `halt.` para salir de Prolog:
-  ```prolog
-  ?- halt.
-  ```
-
 ---
 
 ## 🎯 **Conclusión**

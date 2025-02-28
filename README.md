@@ -25,6 +25,7 @@ Aquí encontrarás ejercicios, soluciones y recursos desarrollados en **Prolog**
 ## 📂 Índice de actividades
 
 - 🔗 [Actividad 1: Introducción a Prolog](/Actividad01/ACTIVIDAD01.md)  
+- 🔗 [Actividad 2: Backtracking y SLD](/Actividad02/ACTIVIDAD02.md)  
 
 *(Se irán agregando más actividades a medida que avance el curso)*
 

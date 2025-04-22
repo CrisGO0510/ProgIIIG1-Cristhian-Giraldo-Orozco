@@ -1,4 +1,4 @@
-% --- Estructura: persona(Nombre, Hijos, Eventos) ---
+% Hechos
 
 persona(homer, [bart, lisa], [
     evento(nacimiento, 1956),
@@ -41,8 +41,7 @@ persona(lisa, [], [
     evento(presidenta_eeuu, 2010)
 ]).
 
-
-
+% Reglas 
 
 linea_de_descendencia(Nombre, Descendencia) :-
     persona(Nombre, Hijos, _),
@@ -54,19 +53,13 @@ linea_descendencia_rec([Hijo|Resto], [Hijo|DescendenciaResto]) :-
     append(SubDescendencia, DescendenciaTemp, DescendenciaResto),
     linea_descendencia_rec(Resto, DescendenciaTemp).
 
-
 evento_mas_reciente(Nombre, Evento) :-
-    persona(Nombre, _, Eventos),
-    max_evento(Eventos, Evento).
-
-max_evento([E], E).
-max_evento([evento(T1, A1), evento(_, A2)|Resto], Max) :-
-    A1 >= A2,
-    max_evento([evento(T1, A1)|Resto], Max).
-max_evento([evento(_, A1), evento(T2, A2)|Resto], Max) :-
-    A1 < A2,
-    max_evento([evento(T2, A2)|Resto], Max).
-
+    persona(Nombre, _, ListaEventos),          
+    member(evento(Evento, Anio), ListaEventos), 
+    \+ (                                       
+        member(evento(_, OtroAnio), ListaEventos), 
+        OtroAnio > Anio                          
+    ).
 
 historia_familiar(Nombre, EventosOrdenados) :-
     persona(Nombre, Hijos, EventosPropios),
@@ -83,5 +76,19 @@ eventos_hijos([H|R], EventosTotales) :-
 sort_eventos_por_anio(Eventos, Ordenados) :-
     predsort(comparar_eventos, Eventos, Ordenados).
 
-comparar_eventos(Delta, evento(_, A1), evento(_, A2)) :-
-    compare(Delta, A1, A2).
+comparar_eventos(Elemento, evento(_, A1), evento(_, A2)) :-
+    compare(Elemento, A1, A2).
+
+
+% Mejoras a las impresiones
+
+imprimir_evento(Evento) :-
+    write(Evento), nl, nl.
+
+imprimir_evento_mas_reciente(Nombre) :-
+    evento_mas_reciente(Nombre, Evento),
+    write('El evento más reciente de '), write(Nombre), write(' es: '), write(Evento), nl.
+
+imprimir_historia_familiar(Nombre) :-
+    historia_familiar(Nombre, Eventos),
+    maplist(imprimir_evento, Eventos).

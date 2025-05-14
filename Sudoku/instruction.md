@@ -110,7 +110,7 @@ Función principal que:
 2. Ejecuta el script:
 
 ```bash
-python sudoku_solver.py
+python solver.py
 ```
 
 ---
@@ -122,5 +122,3 @@ python sudoku_solver.py
 * Añadir contador de pasos o visualización gráfica del proceso.
 
 ---
-
-¿Quieres que también genere un archivo `README.md` listo para guardar o subir a GitHub?

@@ -1,7 +1,3 @@
-Claro, aquí tienes un `README.md` detallado que describe el propósito del proyecto y explica cada función a fondo:
-
----
-
 # 🧠 Sudoku Solver con Restricciones (CSP)
 
 Este proyecto resuelve sudokus aplicando **Programación con Restricciones (CSP)** utilizando Python. Cada celda se trata como una variable con dominio `{1, ..., 9}`, y se aplican restricciones de fila, columna y subcuadro de 3x3. El archivo de entrada contiene un sudoku con ceros (`0`) como espacios vacíos.

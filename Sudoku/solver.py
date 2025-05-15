@@ -5,7 +5,7 @@ Dom = set(range(1, 10))
 IdCols = "ABCDEFGHI"
 
 
-# Inicializar todas las variables del tablero con su dominio completo
+# Inicializamos todas las variables del tablero con su dominio completo
 def init_variables():
     keys = list(itertools.product(range(1, 10), IdCols))
     strKeys = [f"{col}{row}" for row, col in keys]
@@ -16,14 +16,13 @@ def init_variables():
 def load_board(filename):
     board = {}
     rows = "123456789"
-    cols = "ABCDEFGHI"
     with open(filename, "r") as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
             line = line.strip()
             for j, char in enumerate(line):
                 if char != "0":
-                    key = cols[j] + rows[i]
+                    key = IdCols[j] + rows[i]
                     board[key] = int(char)
     return board
 
@@ -38,14 +37,13 @@ def apply_initial_constraints(vars_dict, board):
 # Construir red de vecinos para cada celda (fila, columna, bloque 3x3)
 def get_neighbors():
     rows = "123456789"
-    cols = "ABCDEFGHI"
-    squares = [c + r for r in rows for c in cols]
+    squares = [c + r for r in rows for c in IdCols]
 
     units = []
 
     for r in rows:
-        units.append([c + r for c in cols])
-    for c in cols:
+        units.append([c + r for c in IdCols])
+    for c in IdCols:
         units.append([c + r for r in rows])
     for rs in ("123", "456", "789"):
         for cs in ("ABC", "DEF", "GHI"):
@@ -62,14 +60,13 @@ def get_neighbors():
 # Imprimir tablero en formato visual
 def print_board(board):
     rows = "123456789"
-    cols = "ABCDEFGHI"
 
     def cell(key):
         return str(board.get(key, "."))
 
     print("\n  A B C   D E F   G H I")
     for i, r in enumerate(rows):
-        row = [cell(c + r) for c in cols]
+        row = [cell(c + r) for c in IdCols]
         if i % 3 == 0 and i != 0:
             print("  ------+-------+------")
         print(
@@ -91,7 +88,7 @@ def is_consistent(var, value, assignment, neighbors):
     return True
 
 
-# Seleccionar la siguiente celda no asignada (MRV)
+# Seleccionar la siguiente celda no asignada con el rango de valores más pequeño
 def select_unassigned_variable(vars_dict, assignment):
     unassigned = [v for v in vars_dict if v not in assignment]
     return min(unassigned, key=lambda var: len(vars_dict[var]))
@@ -99,6 +96,8 @@ def select_unassigned_variable(vars_dict, assignment):
 
 # Algoritmo de backtracking con forward checking
 def backtrack(assignment, vars_dict, neighbors):
+    
+    # Si todas las variables están asignadas, devolver la asignación
     if len(assignment) == len(vars_dict):
         return assignment
 
@@ -108,6 +107,7 @@ def backtrack(assignment, vars_dict, neighbors):
             assignment[var] = value
             removed = {}
 
+            # Elimnanamos los valores de los vecinos
             for neighbor in neighbors[var]:
                 if neighbor not in assignment and value in vars_dict[neighbor]:
                     vars_dict[neighbor].remove(value)
@@ -117,6 +117,7 @@ def backtrack(assignment, vars_dict, neighbors):
             if result:
                 return result
 
+            # Si no se encontró una solución, revertimos los cambios
             del assignment[var]
             for n, v in removed.items():
                 vars_dict[n].add(v)
@@ -130,8 +131,13 @@ def main(board):
     vars_dict = apply_initial_constraints(vars_dict, board)
     neighbors = get_neighbors()
 
+    # print("neighbors: ", neighbors)
+
     # Asignaciones iniciales
     assignment = {k: list(v)[0] for k, v in vars_dict.items() if len(v) == 1}
+
+    # print(f"Asignaciones iniciales: {assignment}")
+    # print(f"\nVariables iniciales: {vars_dict}")
 
     # Resolver el sudoku
     result = backtrack(assignment, vars_dict, neighbors)

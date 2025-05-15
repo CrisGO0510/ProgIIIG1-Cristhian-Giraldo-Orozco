@@ -96,7 +96,7 @@ def select_unassigned_variable(vars_dict, assignment):
 
 # Algoritmo de backtracking con forward checking
 def backtrack(assignment, vars_dict, neighbors):
-    
+
     # Si todas las variables están asignadas, devolver la asignación
     if len(assignment) == len(vars_dict):
         return assignment
@@ -131,11 +131,10 @@ def main(board):
     vars_dict = apply_initial_constraints(vars_dict, board)
     neighbors = get_neighbors()
 
-    # print("neighbors: ", neighbors)
-
     # Asignaciones iniciales
     assignment = {k: list(v)[0] for k, v in vars_dict.items() if len(v) == 1}
 
+    # print("neighbors: ", neighbors)
     # print(f"Asignaciones iniciales: {assignment}")
     # print(f"\nVariables iniciales: {vars_dict}")
 

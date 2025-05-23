@@ -1,9 +1,14 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Dict, Any
 import json
+
+BOARD_ROWS = 9
+BOARD_COLS = 9
 
 
 class Cell:
+    """Clase base para las celdas del tablero."""
+
     def is_blocked(self) -> bool:
         return False
 
@@ -36,47 +41,56 @@ class EmptyCell(Cell):
     def is_empty(self) -> bool:
         return True
 
+    def set_value(self, val: Optional[int]) -> None:
+        self.value = val
+
 
 @dataclass
 class Board:
-    cells: dict = field(default_factory=dict)
+    cells: Dict[str, Cell] = field(default_factory=dict)
 
     def get_cell(self, coord: str) -> Cell:
-        return self.cells[coord]
+        """Obtiene una celda dado su coordenada. Devuelve BlockedCell si no existe."""
+        return self.cells.get(coord, BlockedCell())
 
-    def set_cell(self, coord: str, cell: Cell):
+    def set_cell(self, coord: str, cell: Cell) -> None:
         self.cells[coord] = cell
 
-    def load_from_json(self, json_data):
-        for row in range(9):
-            for col in range(1, 10):
-                coord = f"{chr(ord('A')+row)}{col}"
+    def load_from_json(self, json_data: Dict[str, Any]) -> None:
+        """Carga el tablero desde un diccionario JSON."""
+
+        for row in range(BOARD_ROWS):
+            for col in range(1, BOARD_COLS + 1):
+                coord = f"{chr(ord('A') + row)}{col}"
                 self.cells[coord] = EmptyCell()
 
         for coord, data in json_data.items():
-            if "blockedCell" in data and data["blockedCell"] is True:
+            if data.get("blockedCell") is True:
                 self.cells[coord] = BlockedCell()
-            elif "clueCell" in data:
-                clue = data["clueCell"]
+            elif clue := data.get("clueCell"):
                 right = clue.get("right")
                 down = clue.get("down")
                 self.cells[coord] = ClueCell(right=right, down=down)
+            elif value := data.get("value"):
 
-    def display(self):
+                if isinstance(value, int):
+                    self.cells[coord] = EmptyCell(value=value)
 
-        print("     " + "   ".join(chr(ord("A") + i) for i in range(9)))
+    def display(self) -> None:
+        """Imprime el tablero formateado usando ASCII para el marco."""
 
-        print("   ┌" + "───┬" * 8 + "───┐")
+        print("     " + "   ".join(chr(ord("A") + i) for i in range(BOARD_COLS)))
+        print("   ┌" + "───┬" * (BOARD_COLS - 1) + "───┐")
 
-        for row in range(9):
+        for row in range(BOARD_ROWS):
             row_letter = chr(ord("A") + row)
             row_number = f"{row + 1:>2}"
 
             l1, l2, l3 = [], [], []
 
-            for col in range(1, 10):
+            for col in range(1, BOARD_COLS + 1):
                 coord = f"{row_letter}{col}"
-                cell = self.cells.get(coord, BlockedCell())
+                cell: Cell = self.get_cell(coord)
 
                 if cell.is_blocked():
                     l1.append("███")
@@ -93,18 +107,23 @@ class Board:
                     l1.append("   ")
                     l2.append(f" {val} ")
                     l3.append("   ")
+                else:
+                    l1.append("???")
+                    l2.append("???")
+                    l3.append("???")
 
             print(f"{row_number} │" + "│".join(l1) + "│")
             print("   │" + "│".join(l2) + "│")
             print("   │" + "│".join(l3) + "│")
 
-            if row < 8:
-                print("   ├" + "───┼" * 8 + "───┤")
+            if row < BOARD_ROWS - 1:
+                print("   ├" + "───┼" * (BOARD_COLS - 1) + "───┤")
             else:
-                print("   └" + "───┴" * 8 + "───┘")
+                print("   └" + "───┴" * (BOARD_COLS - 1) + "───┘")
 
 
 def load_board_from_file(filename: str = "board.json") -> Board:
+    """Carga el tablero desde un archivo JSON y retorna la instancia de Board."""
     with open(filename, "r", encoding="utf-8") as f:
         data = json.load(f)
     board = Board()
@@ -112,5 +131,6 @@ def load_board_from_file(filename: str = "board.json") -> Board:
     return board
 
 
-board = load_board_from_file()
-board.display()
+if __name__ == "__main__":
+    board = load_board_from_file()
+    board.display()

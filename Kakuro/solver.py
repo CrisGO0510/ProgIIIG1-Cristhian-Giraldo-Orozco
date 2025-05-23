@@ -3,7 +3,6 @@ from typing import Optional
 import json
 
 
-# 🧱 Base Cell Class
 class Cell:
     def is_blocked(self) -> bool:
         return False
@@ -15,27 +14,24 @@ class Cell:
         return False
 
 
-# ⛔ Blocked cell — does not participate
 @dataclass
 class BlockedCell(Cell):
     def is_blocked(self) -> bool:
         return True
 
 
-# 🧮 Clue cell — contains a sum constraint for row/column
 @dataclass
 class ClueCell(Cell):
-    right: Optional[int] = None  # Horizontal sum (right)
-    down: Optional[int] = None  # Vertical sum (down)
+    right: Optional[int] = None
+    down: Optional[int] = None
 
     def is_clue(self) -> bool:
         return True
 
 
-# ✏️ Empty cell — to be filled with a digit (1-9)
 @dataclass
 class EmptyCell(Cell):
-    value: Optional[int] = None  # Value to be filled in
+    value: Optional[int] = None
 
     def is_empty(self) -> bool:
         return True
@@ -67,10 +63,9 @@ class Board:
                 self.cells[coord] = ClueCell(right=right, down=down)
 
     def display(self):
-        # Encabezado horizontal A-I
+
         print("     " + "   ".join(chr(ord("A") + i) for i in range(9)))
 
-        # Línea superior
         print("   ┌" + "───┬" * 8 + "───┐")
 
         for row in range(9):
@@ -99,12 +94,10 @@ class Board:
                     l2.append(f" {val} ")
                     l3.append("   ")
 
-            # Imprime las 3 líneas por fila de celdas
             print(f"{row_number} │" + "│".join(l1) + "│")
             print("   │" + "│".join(l2) + "│")
             print("   │" + "│".join(l3) + "│")
 
-            # Línea intermedia o inferior
             if row < 8:
                 print("   ├" + "───┼" * 8 + "───┤")
             else:

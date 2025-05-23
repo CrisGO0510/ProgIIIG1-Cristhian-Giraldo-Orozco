@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
+import json
 
 
 # 🧱 Base Cell Class
@@ -42,7 +43,7 @@ class EmptyCell(Cell):
 
 @dataclass
 class Board:
-    cells: dict  # key: str like "A1", value: Cell
+    cells: dict = field(default_factory=dict)
 
     def get_cell(self, coord: str) -> Cell:
         return self.cells[coord]
@@ -50,15 +51,32 @@ class Board:
     def set_cell(self, coord: str, cell: Cell):
         self.cells[coord] = cell
 
+    def load_from_json(self, json_data):
+        for row in range(9):
+            for col in range(1, 10):
+                coord = f"{chr(ord('A')+row)}{col}"
+                self.cells[coord] = EmptyCell()
+
+        for coord, data in json_data.items():
+            if "blockedCell" in data and data["blockedCell"] is True:
+                self.cells[coord] = BlockedCell()
+            elif "clueCell" in data:
+                clue = data["clueCell"]
+                right = clue.get("right")
+                down = clue.get("down")
+                self.cells[coord] = ClueCell(right=right, down=down)
+
     def display(self):
-        # Encabezado
-        print("     " + "   ".join(str(i) for i in range(1, 10)))
+        # Encabezado con letras (A–I)
+        letters = [chr(ord("A") + i) for i in range(9)]
+        print("     " + "   ".join(letters))
         print("   +" + "---+" * 9)
 
         for row in range(9):
             row_letter = chr(ord("A") + row)
+            row_number = f"{row + 1:>2}"
 
-            l1, l2, l3 = [f"{row_letter} |"], ["  |"], ["  |"]
+            l1, l2, l3 = [], [], []
 
             for col in range(1, 10):
                 coord = f"{row_letter}{col}"
@@ -82,29 +100,19 @@ class Board:
                     l2.append(f" {val} ")
                     l3.append("   ")
 
-            # Imprimir 3 líneas por fila del tablero
-            print(" ".join(l1) + "|")
-            print(" ".join(l2) + "|")
-            print(" ".join(l3) + "|")
+            print(f"{row_number} |" + "|".join(l1) + "|")
+            print("   |" + "|".join(l2) + "|")
+            print("   |" + "|".join(l3) + "|")
             print("   +" + "---+" * 9)
 
 
-# Creamos un tablero vacío con celdas bloqueadas
-board = Board(cells={})
-for row in range(9):
-    for col in range(1, 10):
-        coord = f"{chr(ord('A') + row)}{col}"
-        board.set_cell(coord, BlockedCell())
+def load_board_from_file(filename: str = "board.json") -> Board:
+    with open(filename, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    board = Board()
+    board.load_from_json(data)
+    return board
 
-# Añadimos algunas celdas
-board.set_cell("A2", ClueCell(right=None, down=16))
-board.set_cell("A3", ClueCell(right=None, down=24))
-board.set_cell("B1", ClueCell(right=17, down=None))
-board.set_cell("B2", EmptyCell())
-board.set_cell("B3", EmptyCell())
 
-board.set_cell("C1", ClueCell(right=29, down=None))
-board.set_cell("C2", EmptyCell())
-board.set_cell("C3", EmptyCell())
-
+board = load_board_from_file()
 board.display()

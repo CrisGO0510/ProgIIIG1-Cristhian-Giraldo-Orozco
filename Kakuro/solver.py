@@ -67,10 +67,11 @@ class Board:
                 self.cells[coord] = ClueCell(right=right, down=down)
 
     def display(self):
-        # Encabezado con letras (A–I)
-        letters = [chr(ord("A") + i) for i in range(9)]
-        print("     " + "   ".join(letters))
-        print("   +" + "---+" * 9)
+        # Encabezado horizontal A-I
+        print("     " + "   ".join(chr(ord("A") + i) for i in range(9)))
+
+        # Línea superior
+        print("   ┌" + "───┬" * 8 + "───┐")
 
         for row in range(9):
             row_letter = chr(ord("A") + row)
@@ -86,24 +87,28 @@ class Board:
                     l1.append("███")
                     l2.append("███")
                     l3.append("███")
-
                 elif cell.is_clue():
                     right = f"{cell.right:0>2}" if cell.right is not None else "  "
                     down = f"{cell.down:0>2}" if cell.down is not None else "  "
                     l1.append(f"\\{right}")
                     l2.append(" \\ ")
                     l3.append(f"{down}\\")
-
                 elif cell.is_empty():
                     val = str(cell.value) if cell.value is not None else " "
                     l1.append("   ")
                     l2.append(f" {val} ")
                     l3.append("   ")
 
-            print(f"{row_number} |" + "|".join(l1) + "|")
-            print("   |" + "|".join(l2) + "|")
-            print("   |" + "|".join(l3) + "|")
-            print("   +" + "---+" * 9)
+            # Imprime las 3 líneas por fila de celdas
+            print(f"{row_number} │" + "│".join(l1) + "│")
+            print("   │" + "│".join(l2) + "│")
+            print("   │" + "│".join(l3) + "│")
+
+            # Línea intermedia o inferior
+            if row < 8:
+                print("   ├" + "───┼" * 8 + "───┤")
+            else:
+                print("   └" + "───┴" * 8 + "───┘")
 
 
 def load_board_from_file(filename: str = "board.json") -> Board:

@@ -136,7 +136,7 @@ def main(board):
 
     # print("neighbors: ", neighbors)
     # print(f"Asignaciones iniciales: {assignment}")
-    # print(f"\nVariables iniciales: {vars_dict}")
+    print(f"\nVariables iniciales: {vars_dict}")
 
     # Resolver el sudoku
     result = backtrack(assignment, vars_dict, neighbors)

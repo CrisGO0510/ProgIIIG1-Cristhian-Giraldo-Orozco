@@ -1,0 +1,182 @@
+{
+  "A1": {
+    "blockedCell": true
+  },
+  "B1": {
+    "blockedCell": true
+  },
+  "C1": {
+    "clueCell": {
+      "right": null,
+      "down": 28
+    }
+  },
+  "D1": {
+    "clueCell": {
+      "right": null,
+      "down": 14
+    }
+  },
+  "E1": {
+    "blockedCell": true
+  },
+  "F1": {
+    "clueCell": {
+      "right": null,
+      "down": 22
+    }
+  },
+  "G1": {
+    "clueCell": {
+      "right": null,
+      "down": 35
+    }
+  },
+  "H1": {
+    "blockedCell": true
+  },
+  "I1": {
+    "blockedCell": true
+  },
+  "A2": {
+    "blockedCell": true
+  },
+  "B2": {
+    "clueCell": {
+      "right": 11,
+      "down": null
+    }
+  },
+  "E2": {
+    "clueCell": {
+      "right": 17,
+      "down": 11
+    }
+  },
+  "H2": {
+    "clueCell": {
+      "right": null,
+      "down": 28
+    }
+  },
+  "I2": {
+    "blockedCell": true
+  },
+  "A3": {
+    "blockedCell": true
+  },
+  "B3": {
+    "clueCell": {
+      "right": 27,
+      "down": 17
+    }
+  },
+  "I3": {
+    "blockedCell": true
+  },
+  "A4": {
+    "clueCell": {
+      "right": 9,
+      "down": null
+    }
+  },
+  "D4": {
+    "clueCell": {
+      "right": 29,
+      "down": 25
+    }
+  },
+  "I4": {
+    "blockedCell": true
+  },
+  "A5": {
+    "clueCell": {
+      "right": 19,
+      "down": null
+    }
+  },
+  "E5": {
+    "blockedCell": true
+  },
+  "F5": {
+    "clueCell": {
+      "right": 9,
+      "down": null
+    }
+  },
+  "I5": {
+    "clueCell": {
+      "right": null,
+      "down": 11
+    }
+  },
+  "A6": {
+    "blockedCell": true
+  },
+  "B6": {
+    "clueCell": {
+      "right": 16,
+      "down": null
+    }
+  },
+  "E6": {
+    "clueCell": {
+      "right": null,
+      "down": 7
+    }
+  },
+  "F6": {
+    "clueCell": {
+      "right": 23,
+      "down": 4
+    }
+  },
+  "A7": {
+    "blockedCell": true
+  },
+  "B7": {
+    "clueCell": {
+      "right": 11,
+      "down": null
+    }
+  },
+  "G7": {
+    "clueCell": {
+      "right": 3,
+      "down": 4
+    }
+  },
+  "A8": {
+    "blockedCell": true
+  },
+  "B8": {
+    "clueCell": {
+      "right": 23,
+      "down": null
+    }
+  },
+  "I8": {
+    "blockedCell": true
+  },
+  "A9": {
+    "blockedCell": true
+  },
+  "B9": {
+    "blockedCell": true
+  },
+  "C9": {
+    "clueCell": {
+      "right": 4,
+      "down": null
+    }
+  },
+  "F9": {
+    "clueCell": {
+      "right": 5,
+      "down": null
+    }
+  },
+  "I9": {
+    "blockedCell": true
+  }
+}

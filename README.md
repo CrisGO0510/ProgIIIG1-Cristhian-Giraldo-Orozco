@@ -29,7 +29,7 @@ Aquí encontrarás ejercicios, soluciones y recursos desarrollados en **Prolog**
 - 🔗 [Actividad 5: Listas](/Actividad05/ACTIVIDAD05.md)  
 - 🔗 [Actividad 6: Estructuras](/Actividad06/ACTIVIDAD06.md)
 - 🔗 [Sudoku](/Sudoku/instruction.md)
-)  
+- 🔗 [Kakuro](/Kakuro/instruction.md)
 
 *(Se irán agregando más actividades a medida que avance el curso)*
 

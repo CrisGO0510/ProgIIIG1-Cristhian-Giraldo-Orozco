@@ -109,6 +109,20 @@ class Board:
             else:
                 print("   └" + "───┴" * 8 + "───┘")
 
+    def generate_run_options(self, length: int, total: int) -> List[Tuple[int, ...]]:
+        """Todas las asignaciones posibles (permutaciones sin repetición) que sumen `total`."""
+        # Primero saco las combinaciones únicas y luego genero sus permutaciones:
+        combos = [
+            comb
+            for comb in itertools.combinations(range(1, 10), length)
+            if sum(comb) == total
+        ]
+        # Permuto cada combinación para cubrir todas las órdenes posibles en la run
+        options = []
+        for comb in combos:
+            options.extend(itertools.permutations(comb))
+        return options
+
     def find_runs(self) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
         """
         Devuelve dos diccionarios:
@@ -165,89 +179,100 @@ class Board:
 
     def solve(self) -> bool:
         """
-        Solver optimizado: MRV + forward-checking incremental.
+        Solver optimizado:
+         - Cada run es (coord, 'H'|'V').
+         - MRV dinámico + forward-checking incremental.
         """
 
+        # 1) Detectar runs por separado
         horiz_runs, vert_runs = self.find_runs()
-        runs: Dict[str, List[str]] = {}
-        targets: Dict[str, int] = {}
 
-        for clue, cells in horiz_runs.items():
-            runs[clue] = cells
-            targets[clue] = cast(ClueCell, self.cells[clue]).right
-        for clue, cells in vert_runs.items():
-            runs[clue] = cells
-            targets[clue] = cast(ClueCell, self.cells[clue]).down
+        # 2) Construyo un dict unificado de runs con claves (coord, direc)
+        runs: Dict[Tuple[str, str], List[str]] = {}
+        targets: Dict[Tuple[str, str], int] = {}
 
-        run_options: Dict[str, List[Tuple[int, ...]]] = {}
-        for clue, cells in runs.items():
+        for coord, cells in horiz_runs.items():
+            runs[(coord, "H")] = cells
+            targets[(coord, "H")] = cast(ClueCell, self.cells[coord]).right  # type: ignore
+        for coord, cells in vert_runs.items():
+            runs[(coord, "V")] = cells
+            targets[(coord, "V")] = cast(ClueCell, self.cells[coord]).down  # type: ignore
+
+        # 3) Precalcular dominios (permutaciones) para cada run
+        run_options: Dict[Tuple[str, str], List[Tuple[int, ...]]] = {}
+        for run_key, cells in runs.items():
             length = len(cells)
-            total = targets[clue]
-            run_options[clue] = [
-                comb
-                for comb in itertools.permutations(range(1, 10), length)
-                if sum(comb) == total
-            ]
+            total = targets[run_key]
+            run_options[run_key] = self.generate_run_options(length, total)
 
-        cell_to_runs: Dict[str, List[str]] = {}
-        for clue, cells in runs.items():
+        # 4) Mapear cada celda a las runs que la tocan
+        cell_to_runs: Dict[str, List[Tuple[str, str]]] = {}
+        for run_key, cells in runs.items():
             for c in cells:
-                cell_to_runs.setdefault(c, []).append(clue)
+                cell_to_runs.setdefault(c, []).append(run_key)
 
-        unassigned: Set[str] = set(runs.keys())
+        # 5) Conjunto de runs sin asignar
+        unassigned: Set[Tuple[str, str]] = set(runs)
 
+        # 6) Backtracking con MRV dinámico y forward-checking ligero
         def backtrack() -> bool:
             if not unassigned:
                 return True
 
-            clue = min(unassigned, key=lambda c: len(run_options[c]))
-            cells = runs[clue]
+            # Elijo la run con MENOS opciones (MRV)
+            run_key = min(unassigned, key=lambda r: len(run_options[r]))
+            cells = runs[run_key]
 
-            for comb in run_options[clue]:
-
-                ok = True
+            for comb in run_options[run_key]:
+                # 6.1) Compruebo consistencia con celdas ya fijadas
+                valid = True
                 for val, coord in zip(comb, cells):
                     existing = cast(EmptyCell, self.cells[coord]).value
                     if existing is not None and existing != val:
-                        ok = False
+                        valid = False
                         break
-                if not ok:
+                if not valid:
                     continue
 
+                # 6.2) Asignación provisional
                 for val, coord in zip(comb, cells):
                     self.cells[coord].value = val
 
-                changed: Dict[str, List[Tuple[int, ...]]] = {}
-                fail = False
+                # 6.3) Forward‐checking: recorto dominios de runs vecinas
+                changed: Dict[Tuple[str, str], List[Tuple[int, ...]]] = {}
+                failure = False
                 for coord in cells:
-                    for other in cell_to_runs[coord]:
-                        if other in unassigned and other != clue:
-
-                            if other not in changed:
-                                changed[other] = run_options[other]
-
+                    for other_run in cell_to_runs[coord]:
+                        if other_run in unassigned and other_run is not run_key:
+                            if other_run not in changed:
+                                # guardo copia
+                                changed[other_run] = run_options[other_run]
+                                # filtro sólo opciones compatibles con los valores nuevos
                                 new_dom = []
-                                for oc in run_options[other]:
-                                    for v, cc in zip(oc, runs[other]):
+                                for oc in run_options[other_run]:
+                                    ok = True
+                                    for v, cc in zip(oc, runs[other_run]):
                                         ev = cast(EmptyCell, self.cells[cc]).value
                                         if ev is not None and ev != v:
+                                            ok = False
                                             break
-                                    else:
+                                    if ok:
                                         new_dom.append(oc)
-                                run_options[other] = new_dom
-                            if not run_options[other]:
-                                fail = True
+                                run_options[other_run] = new_dom
+                            if not run_options[other_run]:
+                                failure = True
                                 break
-                    if fail:
+                    if failure:
                         break
 
-                if not fail:
-
-                    unassigned.remove(clue)
+                # 6.4) Recurro si no fallo
+                if not failure:
+                    unassigned.remove(run_key)
                     if backtrack():
                         return True
-                    unassigned.add(clue)
+                    unassigned.add(run_key)
 
+                # 6.5) Deshago asignación y domino
                 for other, old_dom in changed.items():
                     run_options[other] = old_dom
                 for _, coord in zip(comb, cells):
@@ -267,7 +292,7 @@ def load_board_from_file(filename: str) -> Board:
 
 
 if __name__ == "__main__":
-    board = load_board_from_file("board.json")
+    board = load_board_from_file("KK5IFCNZ.json")
     board.display()
 
     if board.solve():
